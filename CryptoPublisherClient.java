@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.rmi.Naming;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,9 +9,6 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
-
-import javax.swing.JOptionPane;
-
 import java.awt.event.*;
 
 public class CryptoPublisherClient {
@@ -99,7 +95,7 @@ public class CryptoPublisherClient {
             Publisher publisher = (Publisher) Naming.lookup(serverAddress + "/CryptoPublisher");
 
             // Send the CryptoObject to the server
-            publisher.sendCryptoObject(cryptoNews);
+            publisher.receiveCryptoObject(cryptoNews);
             JOptionPane.showMessageDialog(null, "CryptoObject sent to the server!");
 
         } catch (Exception ex) {
