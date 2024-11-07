@@ -6,31 +6,13 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
-
 import javax.swing.JOptionPane;
 
 public class DealingRoomServer extends UnicastRemoteObject implements Publisher {
 
-    private HashMap<String, String> userLogin;
-    private HashMap<String, String> publisherLogin;
-
     protected DealingRoomServer() throws RemoteException {
         super();
-        userLogin = new HashMap<>();
-        publisherLogin = new HashMap<>();
     }
-
-    // public boolean authenticateUser(String username, String password) throws
-    // RemoteException {
-    // return userLogin.containsKey(username) &&
-    // userLogin.get(username).equals(password);
-    // }
-
-    // public boolean authenticatePublisher(String username, String password) throws
-    // RemoteException {
-    // return publisherLogin.containsKey(username) &&
-    // publisherLogin.get(username).equals(password);
-    // }
 
     @Override
     public void sendCryptoObject(CryptoObject cryptoObject) throws RemoteException {

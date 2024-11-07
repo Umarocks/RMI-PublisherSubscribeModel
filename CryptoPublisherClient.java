@@ -17,35 +17,6 @@ import java.awt.event.*;
 
 public class CryptoPublisherClient {
 
-    private static Publisher publisher;
-
-    public static void main(String[] args) {
-        handleLogin();
-    }
-
-    // private static void setupLoginGUI() {
-    // JFrame loginFrame = createFrame("Login", 300, 150);
-    // loginFrame.setLayout(new GridLayout(3, 2));
-
-    // JTextField usernameField = new JTextField();
-    // JPasswordField passwordField = new JPasswordField();
-    // JButton loginButton = new JButton("Login");
-
-    // // Populate login frame
-    // loginFrame.add(new JLabel("Username:"));
-    // loginFrame.add(usernameField);
-    // loginFrame.add(new JLabel("Password:"));
-    // loginFrame.add(passwordField);
-    // loginFrame.add(new JLabel()); // Empty cell
-    // loginFrame.add(loginButton);
-
-    // loginFrame.setVisible(true);
-
-    // // Login action
-    // loginButton.addActionListener(e -> handleLogin(usernameField, passwordField,
-    // loginFrame));
-    // }
-
     private static void handleLogin() {
         try {
             // Look up the LoginService in the RMI registry
@@ -137,80 +108,8 @@ public class CryptoPublisherClient {
         }
     }
 
-    // private static void setupPublisherGUI() {
-    // JFrame frame = createFrame("Crypto Publisher", 400, 300);
-    // frame.setLayout(new GridLayout(6, 2));
+    public static void main(String[] args) {
+        handleLogin();
+    }
 
-    // // Input fields
-    // JTextField topicField = new JTextField();
-    // JTextField headlineField = new JTextField();
-    // JTextField contentField = new JTextField();
-    // JTextField priceField = new JTextField();
-    // JTextField cryptoNameField = new JTextField();
-
-    // JButton publishButton = new JButton("Publish");
-
-    // // Add components to the frame
-    // frame.add(new JLabel("Topic:"));
-    // frame.add(topicField);
-    // frame.add(new JLabel("Headline:"));
-    // frame.add(headlineField);
-    // frame.add(new JLabel("Content:"));
-    // frame.add(contentField);
-    // frame.add(new JLabel("Price:"));
-    // frame.add(priceField);
-    // frame.add(new JLabel("Crypto Name:"));
-    // frame.add(cryptoNameField);
-    // frame.add(publishButton);
-
-    // publishButton.addActionListener(
-    // e -> handlePublish(topicField, headlineField, contentField, priceField,
-    // cryptoNameField, frame));
-
-    // frame.setVisible(true);
-    // }
-
-    // private static void handlePublish(JTextField topicField, JTextField
-    // headlineField, JTextField contentField,
-    // JTextField priceField, JTextField cryptoNameField, JFrame frame) {
-    // try {
-    // // Get input data
-    // String topic = topicField.getText();
-    // String headline = headlineField.getText();
-    // String content = contentField.getText();
-    // double price = Double.parseDouble(priceField.getText());
-    // String cryptoName = cryptoNameField.getText();
-
-    // // Create and send CryptoObject
-    // CryptoObject cryptoNews = new CryptoObject(headline, content, topic, price,
-    // cryptoName);
-    // publisher.sendCryptoObject(cryptoNews);
-    // JOptionPane.showMessageDialog(frame, "CryptoObject sent to the server!");
-
-    // // Clear fields
-    // clearFields(topicField, headlineField, contentField, priceField,
-    // cryptoNameField);
-
-    // } catch (Exception ex) {
-    // showError("Error sending CryptoObject: " + ex.getMessage(), frame);
-    // }
-    // }
-
-    // private static JFrame createFrame(String title, int width, int height) {
-    // JFrame frame = new JFrame(title);
-    // frame.setSize(width, height);
-    // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    // return frame;
-    // }
-
-    // private static void clearFields(JTextField... fields) {
-    // for (JTextField field : fields) {
-    // field.setText("");
-    // }
-    // }
-
-    // private static void showError(String message, Component parent) {
-    // JOptionPane.showMessageDialog(parent, message, "Error",
-    // JOptionPane.ERROR_MESSAGE);
-    // }
 }
