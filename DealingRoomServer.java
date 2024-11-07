@@ -13,6 +13,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+
 import javax.swing.JOptionPane;
 import java.util.Set;
 
@@ -25,15 +27,17 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
     }
 
     @Override
-    public void getCryptoKeys() throws RemoteException {
+    public Set<String> getCryptoKeys() throws RemoteException {
         // Return the Set of keys (i.e., names of cryptocurrencies) from the map
         try {
             System.out.println("Sending Crypto Keys to client...");
             System.out.println("Crypto Keys: " + cryptoMap.keySet());
+            return new HashSet<>(cryptoMap.keySet());
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error sending CryptoObject: " + ex.getMessage());
         }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -85,27 +89,15 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             InetAddress inetAddress = InetAddress.getLocalHost();
             System.setProperty("java.rmi.server.hostname", inetAddress.getHostAddress());
             System.out.println("Server IP: " + inetAddress.getHostAddress());
-
-            // Unique identifier for each instance
-            // String cryptoName = "BTC"; // This can be dynamically set
-            // String id = "001"; // Example ID
-            // String uniqueBindingName = String.format("rmi://10.91.80.240:1099/Crypto",
-
-            // cryptoName, id);
-
             // Create and export the DealingRoomServer object
             DealingRoomServer server = new DealingRoomServer();
-
-            // Load login data from file
-            // server.loadLoginData("./login.txt");
-
             // Create the RMI registry on port 1099
             java.rmi.registry.LocateRegistry.createRegistry(1099);
             LoginServiceImpl loginService = new LoginServiceImpl();
             Naming.rebind("rmi://" + inetAddress + ":1099/LoginService", loginService);
             // Bind the server object with the unique binding name
             Naming.rebind("rmi://" + inetAddress + ":1099/CryptoPublisher", server);
-            // Naming.rebind("rmi://" + inetAddress + ":1099/TopicList", server);
+            Naming.rebind("rmi://" + inetAddress + ":1099/TopicList", server);
 
             System.out.println("Server ready to receive CryptoObject...");
 

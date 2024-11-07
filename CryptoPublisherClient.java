@@ -13,7 +13,7 @@ import java.util.Set;
 import java.awt.event.*;
 
 public class CryptoPublisherClient {
-    public static String serverAddressString = "rmi://Umar/10.0.0.239:1099";
+    public static String serverAddressString = "rmi://Umar/10.91.80.240:1099";
 
     private static void handleLogin() {
 
@@ -84,16 +84,21 @@ public class CryptoPublisherClient {
     }
 
     public static void getCryptoTypes() {
+
         try {
-            Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString +
-                    "/TopicList");
-            // Send the CryptoObject to the server
-            subscriber.getCryptoKeys();
-            JOptionPane.showMessageDialog(null, "Crypto Types: ");
+            // Lookup the SubscriberServer in the RMI registry
+            Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString + "/TopicList");
+
+            // Request the list of topics
+            Set<String> topics = subscriber.getCryptoKeys();
+
+            // Display the received topics
+            System.out.println("Available topics from the Subscriber Server:");
+            for (String topic : topics) {
+                System.out.println("- " + topic);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error getting Crypto Types: " +
-                    e.getMessage());
         }
     }
 
