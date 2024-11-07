@@ -14,13 +14,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import javax.swing.JOptionPane;
+import java.util.Set;
 
-public class DealingRoomServer extends UnicastRemoteObject implements Publisher {
+public class DealingRoomServer extends UnicastRemoteObject implements Publisher, Subscriber {
     private HashMap<String, ArrayList<CryptoObject>> cryptoMap = new HashMap<>();
 
     protected DealingRoomServer() throws RemoteException {
         super();
         loadCryptoMapFromFile();
+    }
+
+    @Override
+    public void getCryptoKeys() throws RemoteException {
+        // Return the Set of keys (i.e., names of cryptocurrencies) from the map
+        try {
+            System.out.println("Sending Crypto Keys to client...");
+            System.out.println("Crypto Keys: " + cryptoMap.keySet());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error sending CryptoObject: " + ex.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -71,6 +84,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher 
         try {
             InetAddress inetAddress = InetAddress.getLocalHost();
             System.setProperty("java.rmi.server.hostname", inetAddress.getHostAddress());
+            System.out.println("Server IP: " + inetAddress.getHostAddress());
 
             // Unique identifier for each instance
             // String cryptoName = "BTC"; // This can be dynamically set
@@ -91,6 +105,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher 
             Naming.rebind("rmi://" + inetAddress + ":1099/LoginService", loginService);
             // Bind the server object with the unique binding name
             Naming.rebind("rmi://" + inetAddress + ":1099/CryptoPublisher", server);
+            // Naming.rebind("rmi://" + inetAddress + ":1099/TopicList", server);
 
             System.out.println("Server ready to receive CryptoObject...");
 

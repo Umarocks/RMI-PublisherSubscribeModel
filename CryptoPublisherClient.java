@@ -9,15 +9,23 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
+import java.util.Set;
 import java.awt.event.*;
 
 public class CryptoPublisherClient {
+    public static String serverAddressString = "rmi://Umar/10.0.0.239:1099";
 
     private static void handleLogin() {
+
         try {
             // Look up the LoginService in the RMI registry
-            String serverAddress = "rmi://" + InetAddress.getLocalHost() + ":1099";
-            LoginService loginService = (LoginService) Naming.lookup(serverAddress + "/LoginService");
+
+            // String serverAddress = "rmi://" + InetAddress.getLocalHost() + ":1099";
+            // System.out.println("Connecting to server at: " + serverAddress +
+            // "/LoginService");
+            LoginService loginService = (LoginService) Naming
+                    .lookup(serverAddressString + "/LoginService");
+            System.out.println("Connectedto server at: " + "10.0.0.239" + "/LoginService");
 
             // Choose user type
             String[] options = { "Publisher", "Subscriber" };
@@ -49,11 +57,18 @@ public class CryptoPublisherClient {
                         publishGUI();
                     }
                 });
-
+                JButton getCryptoTypesButton = new JButton("Get Crypto Types");
+                getCryptoTypesButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        getCryptoTypes();
+                    }
+                });
                 JFrame frame = new JFrame("Publisher Dashboard");
                 frame.setSize(300, 100);
                 frame.setLayout(new FlowLayout());
                 frame.add(publishButton);
+                frame.add(getCryptoTypesButton);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
 
@@ -65,6 +80,20 @@ public class CryptoPublisherClient {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage());
+        }
+    }
+
+    public static void getCryptoTypes() {
+        try {
+            Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString +
+                    "/TopicList");
+            // Send the CryptoObject to the server
+            subscriber.getCryptoKeys();
+            JOptionPane.showMessageDialog(null, "Crypto Types: ");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error getting Crypto Types: " +
+                    e.getMessage());
         }
     }
 
@@ -89,10 +118,9 @@ public class CryptoPublisherClient {
         CryptoObject cryptoNews = new CryptoObject(headline, content, topic, price, cryptoName);
 
         try {
-            String serverAddress = "rmi://" + InetAddress.getLocalHost() + ":1099";
 
             // Look up the remote Publisher object in the RMI registry
-            Publisher publisher = (Publisher) Naming.lookup(serverAddress + "/CryptoPublisher");
+            Publisher publisher = (Publisher) Naming.lookup(serverAddressString + "/CryptoPublisher");
 
             // Send the CryptoObject to the server
             publisher.receiveCryptoObject(cryptoNews);
