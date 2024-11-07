@@ -1,0 +1,8 @@
+
+bitcoin,btc@2024
+ethereum,eth@2024
+ripple,xrp@2024
+cardano,ada@2024
+polkadot,dot@2024
+
+
