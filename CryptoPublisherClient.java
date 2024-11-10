@@ -69,7 +69,7 @@ public class CryptoPublisherClient {
                 // frame.setVisible(true);
                 JTextField topicInputField = new JTextField(15); // Input field for topic name
                 JButton subscribeButton = new JButton("Subscribe");
-
+                JButton unsubscribeButton = new JButton("Unsubscribe");
                 subscribeButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -82,15 +82,27 @@ public class CryptoPublisherClient {
                         }
                     }
                 });
-
+                unsubscribeButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String topicName = topicInputField.getText();
+                        if (!topicName.isEmpty()) {
+                            unsubscribe(topicName); // Call the unsubscribe function
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Please enter a topic name to unsubscribe.",
+                                    "Input Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
                 JFrame frame = new JFrame("Publisher Dashboard");
-                frame.setSize(400, 150);
+                frame.setSize(400, 200); // Increase frame size to accommodate both buttons
                 frame.setLayout(new FlowLayout());
-                frame.add(publishButton);
-                frame.add(getCryptoTypesButton);
+                frame.add(publishButton); // Assuming publishButton is already defined
+                frame.add(getCryptoTypesButton); // Assuming getCryptoTypesButton is already defined
                 frame.add(new JLabel("Topic:"));
                 frame.add(topicInputField);
                 frame.add(subscribeButton);
+                frame.add(unsubscribeButton); // Add the unsubscribe button
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             } else {
@@ -112,6 +124,20 @@ public class CryptoPublisherClient {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error subscribing to topic: " + e.getMessage());
+        }
+    }
+
+    public static void unsubscribe(String topicName) {
+        try {
+            // Look up the remote Subscriber object in the RMI registry
+            Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString + "/TopicList");
+
+            // Unsubscribe from the specified topic
+            subscriber.unsubscribe(topicName, LoggedUsername);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error unsubscribing from topic: " + e.getMessage());
         }
     }
 

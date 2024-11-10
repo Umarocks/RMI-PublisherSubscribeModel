@@ -7,6 +7,8 @@ public interface Subscriber extends Remote {
     Set<String> getCryptoKeys() throws RemoteException;
 
     void subscribe(String topicNameToSubscribe, String username) throws RemoteException;
+
+    public void unsubscribe(String topicNameToUnsubscribe, String username) throws RemoteException;
     // void sendTopicList(TopicList topicList) throws RemoteException;
 
 }

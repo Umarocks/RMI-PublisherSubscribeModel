@@ -28,6 +28,31 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
     }
 
     @Override
+    public void unsubscribe(String topicNameToUnsubscribe, String username) throws RemoteException {
+
+        // Check if the user exists and if they are subscribed to the topic
+        if (SubscriptionList.containsKey(username) && SubscriptionList.get(username).contains(topicNameToUnsubscribe)) {
+
+            // Remove the topic from the user's subscription list
+            SubscriptionList.get(username).remove(topicNameToUnsubscribe);
+            System.out.println("Subscriber removed from topic: " + topicNameToUnsubscribe);
+
+            // If the user has no more topics, remove the user from the SubscriptionList
+            if (SubscriptionList.get(username).isEmpty()) {
+                SubscriptionList.remove(username);
+                System.out.println("User " + username + " has no more subscriptions and was removed.");
+            }
+
+            // Save the updated SubscriptionList to file
+            saveSubscriptionListToFile();
+        } else {
+            JOptionPane.showMessageDialog(null, "User is not subscribed to the topic.");
+        }
+
+        System.out.println(SubscriptionList);
+    }
+
+    @Override
     public void subscribe(String topicNameToSubscribe, String username) throws RemoteException {
 
         if (cryptoMap.containsKey(topicNameToSubscribe)) {
