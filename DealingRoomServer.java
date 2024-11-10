@@ -20,10 +20,26 @@ import java.util.Set;
 
 public class DealingRoomServer extends UnicastRemoteObject implements Publisher, Subscriber {
     private HashMap<String, ArrayList<CryptoObject>> cryptoMap = new HashMap<>();
+    private HashMap<String, Set<String>> SubscriptionList = new HashMap<>();
 
     protected DealingRoomServer() throws RemoteException {
         super();
         loadCryptoMapFromFile();
+    }
+
+    @Override
+    public void subscribe(String topicNameToSubscribe, String username) throws RemoteException {
+
+        if (cryptoMap.containsKey(topicNameToSubscribe)) {
+
+            SubscriptionList.computeIfAbsent(username, key -> new HashSet<>()).add(topicNameToSubscribe);
+            System.out.println("Subscriber added to topic: " + topicNameToSubscribe);
+            saveSubscriptionListToFile();
+        } else {
+            JOptionPane.showMessageDialog(null, "Topic does not exist.");
+        }
+        System.out.println(SubscriptionList);
+
     }
 
     @Override
@@ -41,6 +57,17 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
     }
 
     @SuppressWarnings("unchecked")
+    private void saveSubscriptionListToFile() {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("SubscriptionRecord.txt"))) {
+            out.writeObject(SubscriptionList);
+            System.out.println("Subscription List saved to file.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error saving Subscription List to file.");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     private void loadCryptoMapFromFile() {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("PublishedArticles.txt"))) {
             Object obj = in.readObject();
@@ -53,6 +80,17 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             e.printStackTrace();
             System.out.println("Error loading HashMap from file.");
         }
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("SubscriptionRecord.txt"))) {
+            Object obj = in.readObject();
+            SubscriptionList = (HashMap<String, Set<String>>) obj;
+            System.out.println("Subscription List loaded from file.");
+            System.out.println("Loaded Subscription List: " + SubscriptionList);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found, initializing empty SubscriptionList.");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Error loading Subscription List from file.");
+        }
     }
 
     public void saveCryptoMapToFile() {
@@ -60,7 +98,6 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             out.writeObject(cryptoMap); // Write the entire HashMap to the file
             System.out.println("HashMap saved to file.");
             System.out.println("Loaded Crypto Map: " + cryptoMap);
-
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error saving HashMap to file.");
@@ -98,9 +135,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             // Bind the server object with the unique binding name
             Naming.rebind("rmi://" + inetAddress + ":1099/CryptoPublisher", server);
             Naming.rebind("rmi://" + inetAddress + ":1099/TopicList", server);
-
             System.out.println("Server ready to receive CryptoObject...");
-
         } catch (Exception e) {
             e.printStackTrace();
         }

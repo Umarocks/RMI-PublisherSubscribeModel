@@ -6,6 +6,7 @@ public interface Subscriber extends Remote {
     // Method to send a CryptoObject to the server
     Set<String> getCryptoKeys() throws RemoteException;
 
+    void subscribe(String topicNameToSubscribe, String username) throws RemoteException;
     // void sendTopicList(TopicList topicList) throws RemoteException;
 
 }

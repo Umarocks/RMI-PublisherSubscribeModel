@@ -13,10 +13,10 @@ import java.util.Set;
 import java.awt.event.*;
 
 public class CryptoPublisherClient {
-    public static String serverAddressString = "rmi://Umar/10.91.80.240:1099";
+    public static String serverAddressString = "rmi://Umar/10.0.0.239:1099";
+    public static String LoggedUsername = null;
 
     private static void handleLogin() {
-
         try {
             // Look up the LoginService in the RMI registry
 
@@ -26,28 +26,24 @@ public class CryptoPublisherClient {
             LoginService loginService = (LoginService) Naming
                     .lookup(serverAddressString + "/LoginService");
             System.out.println("Connectedto server at: " + "10.0.0.239" + "/LoginService");
-
             // Choose user type
             String[] options = { "Publisher", "Subscriber" };
             String userType = (String) JOptionPane.showInputDialog(null, "Select user type:",
                     "Login", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
             if (userType == null) {
                 System.out.println("User cancelled login.");
                 return;
             }
-
             // Prompt for credentials
             String username = JOptionPane.showInputDialog("Username:");
             String password = JOptionPane.showInputDialog("Password:");
-
+            LoggedUsername = username;
             boolean isAuthenticated = false;
             if ("Publisher".equals(userType)) {
                 isAuthenticated = loginService.authenticatePublisher(username, password);
             } else if ("Subscriber".equals(userType)) {
                 isAuthenticated = loginService.authenticateSubscriber(username, password);
             }
-
             if (isAuthenticated) {
                 JOptionPane.showMessageDialog(null, "Login successful!");
                 JButton publishButton = new JButton("Go to Publish GUI");
@@ -64,39 +60,79 @@ public class CryptoPublisherClient {
                         getCryptoTypes();
                     }
                 });
+                // JFrame frame = new JFrame("Publisher Dashboard");
+                // frame.setSize(300, 100);
+                // frame.setLayout(new FlowLayout());
+                // frame.add(publishButton);
+                // frame.add(getCryptoTypesButton);
+                // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                // frame.setVisible(true);
+                JTextField topicInputField = new JTextField(15); // Input field for topic name
+                JButton subscribeButton = new JButton("Subscribe");
+
+                subscribeButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String topicName = topicInputField.getText();
+                        if (!topicName.isEmpty()) {
+                            subscribe(topicName);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Please enter a topic name to subscribe.",
+                                    "Input Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+
                 JFrame frame = new JFrame("Publisher Dashboard");
-                frame.setSize(300, 100);
+                frame.setSize(400, 150);
                 frame.setLayout(new FlowLayout());
                 frame.add(publishButton);
                 frame.add(getCryptoTypesButton);
+                frame.add(new JLabel("Topic:"));
+                frame.add(topicInputField);
+                frame.add(subscribeButton);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
-
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid credentials. Please try again.");
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage());
         }
     }
 
-    public static void getCryptoTypes() {
+    public static void subscribe(String topicName) {
+        try {
+            // Look up the remote Subscriber object in the RMI registry
+            Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString + "/TopicList");
+            // Subscribe to the specified topic
+            subscriber.subscribe(topicName, LoggedUsername);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error subscribing to topic: " + e.getMessage());
+        }
+    }
+
+    public static void getCryptoTypes() {
         try {
             // Lookup the SubscriberServer in the RMI registry
+            System.out.println(LoggedUsername);
             Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString + "/TopicList");
-
             // Request the list of topics
             Set<String> topics = subscriber.getCryptoKeys();
-
             // Display the received topics
             System.out.println("Available topics from the Subscriber Server:");
             for (String topic : topics) {
                 System.out.println("- " + topic);
             }
+            StringBuilder message = new StringBuilder("Available topics from the Subscriber Server:\n");
+            for (String topic : topics) {
+                message.append("- ").append(topic).append("\n");
+            }
+            JOptionPane.showMessageDialog(null, message.toString(), "Available Topics",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,7 +145,6 @@ public class CryptoPublisherClient {
         String content = JOptionPane.showInputDialog("Enter Content:");
         String priceStr = JOptionPane.showInputDialog("Enter Price:");
         String cryptoName = JOptionPane.showInputDialog("Enter Crypto Name:");
-
         // Validate the price input
         double price = 0;
         try {
@@ -118,19 +153,14 @@ public class CryptoPublisherClient {
             JOptionPane.showMessageDialog(null, "Invalid price. Please enter a valid number.");
             return;
         }
-
         // Creating the CryptoObject with the input data
         CryptoObject cryptoNews = new CryptoObject(headline, content, topic, price, cryptoName);
-
         try {
-
             // Look up the remote Publisher object in the RMI registry
             Publisher publisher = (Publisher) Naming.lookup(serverAddressString + "/CryptoPublisher");
-
             // Send the CryptoObject to the server
             publisher.receiveCryptoObject(cryptoNews);
             JOptionPane.showMessageDialog(null, "CryptoObject sent to the server!");
-
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error sending CryptoObject: " + ex.getMessage());
