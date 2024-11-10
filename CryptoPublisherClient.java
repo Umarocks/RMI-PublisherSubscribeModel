@@ -53,20 +53,14 @@ public class CryptoPublisherClient {
                         publishGUI();
                     }
                 });
-                JButton getCryptoTypesButton = new JButton("Get Crypto Types");
+                JButton getCryptoTypesButton = new JButton("Get Crypto Topics");
                 getCryptoTypesButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         getCryptoTypes();
                     }
                 });
-                // JFrame frame = new JFrame("Publisher Dashboard");
-                // frame.setSize(300, 100);
-                // frame.setLayout(new FlowLayout());
-                // frame.add(publishButton);
-                // frame.add(getCryptoTypesButton);
-                // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                // frame.setVisible(true);
+
                 JTextField topicInputField = new JTextField(15); // Input field for topic name
                 JButton subscribeButton = new JButton("Subscribe");
                 JButton unsubscribeButton = new JButton("Unsubscribe");
@@ -99,7 +93,7 @@ public class CryptoPublisherClient {
                 frame.setLayout(new FlowLayout());
                 frame.add(publishButton); // Assuming publishButton is already defined
                 frame.add(getCryptoTypesButton); // Assuming getCryptoTypesButton is already defined
-                frame.add(new JLabel("Topic:"));
+                // frame.add(new JLabel("Topic:"));
                 frame.add(topicInputField);
                 frame.add(subscribeButton);
                 frame.add(unsubscribeButton); // Add the unsubscribe button
