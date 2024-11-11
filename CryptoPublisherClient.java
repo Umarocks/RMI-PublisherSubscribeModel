@@ -17,8 +17,8 @@ import java.awt.event.*;
 import java.util.List;
 
 public class CryptoPublisherClient {
-    public static String serverAddressString = "rmi://Umar/10.0.0.239:1099";
-    public static String serverProcessAddressing = "10.0.0.239";
+    public static String serverAddressString = "rmi://Umar/10.91.80.240:1099";
+    public static String serverProcessAddressing = "10.91.80.240";
     public static String LoggedUsername = null;
 
     private static void createArticleUI(List<CryptoObject> cryptoArticles) {
@@ -125,9 +125,10 @@ public class CryptoPublisherClient {
                     try (Socket socket = new Socket(serverAddress, serverPort);
                             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+                        IpRegister(); // Register the IP address of the user
 
                         out.println("Client connected");
-
+                        out.println(LoggedUsername);
                         String serverMessage;
                         // Continuously listen for messages from the server
                         System.out.println(in);
@@ -146,6 +147,9 @@ public class CryptoPublisherClient {
                             if ("HELLO".equals(serverMessage)) {
                                 System.out.println("Received from server: " + serverMessage);
                                 getArticles(); // Call the method to get articles
+                            }
+                            if ("USERNAME".equals(serverMessage)) {
+                                out.println(LoggedUsername);
                             }
                             if (count < 5) {
                                 count++;

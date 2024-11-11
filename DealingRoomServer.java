@@ -27,7 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DealingRoomServer extends UnicastRemoteObject implements Publisher, Subscriber {
     private HashMap<String, ArrayList<CryptoObject>> cryptoMap = new HashMap<>();
-    private HashMap<String, Set<String>> SubscriptionList = new HashMap<>();
+    private static HashMap<String, Set<String>> SubscriptionList = new HashMap<>();
+    public static HashMap<PrintWriter, String> clientOutputStreams = new HashMap<>();
 
     public static Map<String, Integer> ipMap = new ConcurrentHashMap<>();
 
@@ -98,7 +99,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             saveSubscriptionListToFile();
         } else {
             System.out.println("CALLING HELLO FUNCTION");
-            sendHelloToAllClients();
+            sendHelloToAllClients("m");
 
             JOptionPane.showMessageDialog(null, "Topic does not exist.");
         }
@@ -183,48 +184,52 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             cryptoMap.put(cryptoName, newList);
         }
         saveCryptoMapToFile();
-        sendHelloToAllClients();
+        sendHelloToAllClients(cryptoObject.getCryptoName());
     }
 
-    public static ArrayList<PrintWriter> clientOutputStreams = new ArrayList<PrintWriter>();
-
-    public static void sendHelloToAllClients() {
-        for (PrintWriter out : clientOutputStreams) {
-            // String[] clientInfo = clientKey.split(":");
-            // String clientIP = clientInfo[0];
-            // int clientPort = Integer.parseInt(clientInfo[1]);
-
-            // System.out.println(socket.getInetAddress());
-            out.println("HELLO");
-            System.out.println("Sent 'HELLO' to " + out);
-
-        }
-    }
-
-    private static class ClientHandler extends Thread {
-        private final Socket clientSocket;
-
-        public ClientHandler(Socket socket) {
-            this.clientSocket = socket;
-        }
-
-        // public void sendHelloToAllClients() {
-
+    public static void sendHelloToAllClients(String CryptoName) {
+        // for (PrintWriter out : clientOutputStreams) {
         // // String[] clientInfo = clientKey.split(":");
         // // String clientIP = clientInfo[0];
         // // int clientPort = Integer.parseInt(clientInfo[1]);
 
         // // System.out.println(socket.getInetAddress());
-        // try{
-
-        // PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
         // out.println("HELLO");
         // System.out.println("Sent 'HELLO' to " + out);
+
         // }
-        // catch (IOException e) {
-        // System.err.println("Error handling client communication: " + e.getMessage());
-        // };
-        // }
+        System.out.println(clientOutputStreams);
+        // private HashMap<String, Set<String>> SubscriptionList = new HashMap<>();
+        System.out.println(SubscriptionList);
+        for (Map.Entry<PrintWriter, String> entry : clientOutputStreams.entrySet()) {
+            String clientValue = entry.getValue(); // This is the "IP:port" string
+            PrintWriter out = entry.getKey(); // The PrintWriter for this client
+            // System.out.println();
+            System.out.println(clientValue + " /" + out + " /" + "RETRIEVED FROM MAP BEFORE HELLO");
+            if (SubscriptionList.containsKey(clientValue)) {
+                if (SubscriptionList.get(clientValue).contains(CryptoName)) {
+                    out.println("HELLO");
+                    System.out.println("Sent 'HELLO' to " + clientValue + " with PrintWriter: " + out);
+                }
+            }
+
+            // Send the "HELLO" message
+            // out.println("HELLO");
+
+            // Print to console the client information and confirmation of message sent
+            System.out.println("Sent 'HELLO' to " + clientValue + " with PrintWriter: " + out);
+        }
+
+    }
+
+    private static class ClientHandler extends Thread {
+        private final Socket clientSocket;
+        protected String username = "";
+
+        public ClientHandler(Socket socket, String username) {
+            this.username = username;
+            this.clientSocket = socket;
+        }
 
         @Override
         public void run() {
@@ -232,21 +237,32 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
 
                 // Read the message from the client (optional)
-                clientOutputStreams.add(out);
-                while (true) {
+                // clientOutputStreams.put(out, this.username);
+                for (int i = 0; i < 2; i++) {
+
+                    System.out.println("Waiting for username...");
                     String message = in.readLine();
+                    System.out.println("Message: " + message);
+                    String[] parts = message.split(":");
+                    System.out.println(parts.length);
+                    for (String part : parts) {
+                        System.out.println(part);
+                    }
+                    clientOutputStreams.put(out, message);
                     System.out.println("Received from client: " + message);
+                }
+                while (true) {
+                    // System.out.println("Received from client: " + message);
                 }
             } catch (IOException e) {
                 System.err.println("Error handling client communication: " + e.getMessage());
+            } finally {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing client socket: " + e.getMessage());
+                }
             }
-            // finally {
-            // try {
-            // clientSocket.close();
-            // } catch (IOException e) {
-            // System.err.println("Error closing client socket: " + e.getMessage());
-            // }
-            // }
         }
     }
 
@@ -277,9 +293,9 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
                     // Add client IP and port to the map
                     ipMap.put(clientKey, clientPort);
                     System.out.println("Client connected: " + clientKey);
-
+                    String username = "";
                     // Start a new thread to handle the client
-                    new ClientHandler(clientSocket).start();
+                    new ClientHandler(clientSocket, username).start();
                 }
             } catch (IOException e) {
                 System.err.println("Server exception: " + e.getMessage());
