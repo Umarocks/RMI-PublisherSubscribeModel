@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import java.util.Set;
@@ -25,6 +26,27 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
     protected DealingRoomServer() throws RemoteException {
         super();
         loadCryptoMapFromFile();
+    }
+
+    @Override
+    public List<CryptoObject> getArticleList(String username) throws RemoteException {
+        // Initialize an ArrayList to hold CryptoObject instances
+        List<CryptoObject> articleList = new ArrayList<>();
+
+        // Check if the user is subscribed to any topics
+        if (SubscriptionList.containsKey(username)) {
+            // Iterate over each topic the user is subscribed to
+            for (String topic : SubscriptionList.get(username)) {
+                // Check if the topic exists in the cryptoMap
+                if (cryptoMap.containsKey(topic)) {
+                    // Add each CryptoObject for the given topic to the article list
+                    for (CryptoObject cryptoObject : cryptoMap.get(topic)) {
+                        articleList.add(cryptoObject); // Add the entire CryptoObject
+                    }
+                }
+            }
+        }
+        return articleList;
     }
 
     @Override

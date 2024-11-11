@@ -1,6 +1,8 @@
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Set;
+import java.util.List;
 
 public interface Subscriber extends Remote {
     // Method to send a CryptoObject to the server
@@ -8,7 +10,8 @@ public interface Subscriber extends Remote {
 
     void subscribe(String topicNameToSubscribe, String username) throws RemoteException;
 
-    public void unsubscribe(String topicNameToUnsubscribe, String username) throws RemoteException;
-    // void sendTopicList(TopicList topicList) throws RemoteException;
+    void unsubscribe(String topicNameToUnsubscribe, String username) throws RemoteException;
 
+    // void sendTopicList(TopicList topicList) throws RemoteException;
+    List<CryptoObject> getArticleList(String username) throws RemoteException;
 }
