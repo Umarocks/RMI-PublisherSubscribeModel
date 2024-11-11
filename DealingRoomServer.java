@@ -188,16 +188,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
     }
 
     public static void sendHelloToAllClients(String CryptoName) {
-        // for (PrintWriter out : clientOutputStreams) {
-        // // String[] clientInfo = clientKey.split(":");
-        // // String clientIP = clientInfo[0];
-        // // int clientPort = Integer.parseInt(clientInfo[1]);
 
-        // // System.out.println(socket.getInetAddress());
-        // out.println("HELLO");
-        // System.out.println("Sent 'HELLO' to " + out);
-
-        // }
         System.out.println(clientOutputStreams);
         // private HashMap<String, Set<String>> SubscriptionList = new HashMap<>();
         System.out.println(SubscriptionList);
@@ -212,10 +203,6 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
                     System.out.println("Sent 'HELLO' to " + clientValue + " with PrintWriter: " + out);
                 }
             }
-
-            // Send the "HELLO" message
-            // out.println("HELLO");
-
             // Print to console the client information and confirmation of message sent
             System.out.println("Sent 'HELLO' to " + clientValue + " with PrintWriter: " + out);
         }

@@ -55,7 +55,7 @@ public class CryptoPublisherClient {
         frame.setVisible(true);
     }
 
-    public static void getArticles() {
+    public static void getArticles(String type) {
         try {
             // Look up the remote Subscriber object in the RMI registry
             Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString + "/TopicList");
@@ -67,6 +67,9 @@ public class CryptoPublisherClient {
             System.out.println("Received articles from the Subscriber Server:");
             for (CryptoObject article : articles) {
                 System.out.println("- " + article.getHeadline());
+            }
+            if (type == "REMOTE") {
+                JOptionPane.showMessageDialog(null, "New Article Released");
             }
 
             // Create a UI to display the articles
@@ -102,24 +105,6 @@ public class CryptoPublisherClient {
                 // IpRegister(); // Register the IP address of the user
                 String serverAddress = serverProcessAddressing; // The server's IP address
                 int serverPort = 10655; // The port on which the server is listening
-
-                // try (Socket socket = new Socket(serverAddress, serverPort);
-                // BufferedReader in = new BufferedReader(new
-                // InputStreamReader(socket.getInputStream()));
-                // PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-                // // Send a message to the server upon connecting
-                // out.println("Client connected");
-
-                // Wait for the server's response (should be "HELLO")
-                // String serverMessage = in.readLine();
-                // new Thread(new MessageListener(in)).start();
-
-                // if ("HELLO".equals(serverMessage)) {
-                // System.out.println("Received from server: " + serverMessage);
-                // getArticles();
-                // }
-
                 System.out.println("STARTING THREAD");
                 new Thread(() -> {
                     try (Socket socket = new Socket(serverAddress, serverPort);
@@ -146,7 +131,7 @@ public class CryptoPublisherClient {
                             }
                             if ("HELLO".equals(serverMessage)) {
                                 System.out.println("Received from server: " + serverMessage);
-                                getArticles(); // Call the method to get articles
+                                getArticles("REMOTE"); // Call the method to get articles
                             }
                             if ("USERNAME".equals(serverMessage)) {
                                 out.println(LoggedUsername);
@@ -179,31 +164,6 @@ public class CryptoPublisherClient {
             JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage());
         }
     }
-
-    // private static class MessageListener implements Runnable {
-    // private final BufferedReader in;
-
-    // public MessageListener(BufferedReader in) {
-    // this.in = in;
-    // }
-
-    // @Override
-    // public void run() {
-    // try {
-    // String serverMessage;
-    // // (serverMessage = in.readLine()) != null
-    // while (true) {
-    // serverMessage = in.readLine();
-    // if ("HELLO".equals(serverMessage)) {
-    // System.out.println("Received from server: " + serverMessage);
-    // getArticles(); // Call the method to get articles
-    // }
-    // }
-    // } catch (IOException e) {
-    // System.err.println("Error listening to server messages: " + e.getMessage());
-    // }
-    // }
-    // }
 
     private static String getUserType() {
         String[] options = { "Publisher", "Subscriber" };
@@ -291,7 +251,7 @@ public class CryptoPublisherClient {
         getArticlesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getArticles();
+                getArticles("NONE");
             }
         });
 
