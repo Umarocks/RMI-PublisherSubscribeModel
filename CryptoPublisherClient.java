@@ -4,7 +4,10 @@ import java.rmi.Naming;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -15,6 +18,7 @@ import java.util.List;
 
 public class CryptoPublisherClient {
     public static String serverAddressString = "rmi://Umar/10.0.0.239:1099";
+    public static String serverProcessAddressing = "10.0.0.239";
     public static String LoggedUsername = null;
 
     private static void createArticleUI(List<CryptoObject> cryptoArticles) {
@@ -95,16 +99,107 @@ public class CryptoPublisherClient {
             boolean isAuthenticated = authenticateUser(loginService, username, password, userType);
 
             if (isAuthenticated) {
+                // IpRegister(); // Register the IP address of the user
+                String serverAddress = serverProcessAddressing; // The server's IP address
+                int serverPort = 10655; // The port on which the server is listening
+
+                // try (Socket socket = new Socket(serverAddress, serverPort);
+                // BufferedReader in = new BufferedReader(new
+                // InputStreamReader(socket.getInputStream()));
+                // PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+                // // Send a message to the server upon connecting
+                // out.println("Client connected");
+
+                // Wait for the server's response (should be "HELLO")
+                // String serverMessage = in.readLine();
+                // new Thread(new MessageListener(in)).start();
+
+                // if ("HELLO".equals(serverMessage)) {
+                // System.out.println("Received from server: " + serverMessage);
+                // getArticles();
+                // }
+
+                System.out.println("STARTING THREAD");
+                new Thread(() -> {
+                    try (Socket socket = new Socket(serverAddress, serverPort);
+                            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                            PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+                        out.println("Client connected");
+
+                        String serverMessage;
+                        // Continuously listen for messages from the server
+                        System.out.println(in);
+                        System.out.println(out);
+                        System.out.println(serverAddress);
+                        System.out.println(serverPort);
+                        int count = 0;
+                        while (true) {
+                            serverMessage = in.readLine();
+                            // System.out.println("Received from server: " + serverMessage);
+                            String temp = serverMessage;
+                            if (temp != serverMessage) {
+                                System.out.println("Received from server: " + serverMessage);
+                                temp = serverMessage;
+                            }
+                            if ("HELLO".equals(serverMessage)) {
+                                System.out.println("Received from server: " + serverMessage);
+                                getArticles(); // Call the method to get articles
+                            }
+                            if (count < 5) {
+                                count++;
+                                System.out.println("COUNT: " + count);
+                                out.println("IS THIS WORKING?");
+                            }
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error listening to server messages: " + e.getMessage());
+                    }
+                    System.out.println("END OF THREAD");
+
+                }).start();
+                // } catch (IOException e) {
+                // System.err.println("Client exception: " + e.getMessage());
+                // }
+
                 JOptionPane.showMessageDialog(null, "Login successful!");
                 showDashboard();
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid credentials. Please try again.");
             }
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage());
         }
     }
+
+    // private static class MessageListener implements Runnable {
+    // private final BufferedReader in;
+
+    // public MessageListener(BufferedReader in) {
+    // this.in = in;
+    // }
+
+    // @Override
+    // public void run() {
+    // try {
+    // String serverMessage;
+    // // (serverMessage = in.readLine()) != null
+    // while (true) {
+    // serverMessage = in.readLine();
+    // if ("HELLO".equals(serverMessage)) {
+    // System.out.println("Received from server: " + serverMessage);
+    // getArticles(); // Call the method to get articles
+    // }
+    // }
+    // } catch (IOException e) {
+    // System.err.println("Error listening to server messages: " + e.getMessage());
+    // }
+    // }
+    // }
 
     private static String getUserType() {
         String[] options = { "Publisher", "Subscriber" };
@@ -237,6 +332,20 @@ public class CryptoPublisherClient {
         }
     }
 
+    public static void IpRegister() {
+        try {
+            // Look up the remote Subscriber object in the RMI registry
+            Subscriber subscriber = (Subscriber) Naming.lookup(serverAddressString + "/TopicList");
+
+            // Unsubscribe from the specified topic
+            subscriber.IpRegister(LoggedUsername, InetAddress.getLocalHost().getHostAddress());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error unsubscribing from topic: " + e.getMessage());
+        }
+    }
+
     public static void getCryptoTypes() {
         try {
             // Lookup the SubscriberServer in the RMI registry
@@ -290,7 +399,9 @@ public class CryptoPublisherClient {
     }
 
     public static void main(String[] args) {
+
         handleLogin();
+
     }
 
 }

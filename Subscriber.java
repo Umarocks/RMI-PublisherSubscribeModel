@@ -12,6 +12,8 @@ public interface Subscriber extends Remote {
 
     void unsubscribe(String topicNameToUnsubscribe, String username) throws RemoteException;
 
+    void IpRegister(String username, String ip) throws RemoteException;
+
     // void sendTopicList(TopicList topicList) throws RemoteException;
     List<CryptoObject> getArticleList(String username) throws RemoteException;
 }
