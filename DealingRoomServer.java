@@ -86,7 +86,6 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             JOptionPane.showMessageDialog(null, "User is not subscribed to the topic.");
         }
 
-        System.out.println(SubscriptionList);
     }
 
     @Override
@@ -98,12 +97,8 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             System.out.println("Subscriber added to topic: " + topicNameToSubscribe);
             saveSubscriptionListToFile();
         } else {
-            System.out.println("CALLING HELLO FUNCTION");
-            sendHelloToAllClients("m");
-
             JOptionPane.showMessageDialog(null, "Topic does not exist.");
         }
-        System.out.println(SubscriptionList);
 
     }
 
@@ -112,7 +107,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
         // Return the Set of keys (i.e., names of cryptocurrencies) from the map
         try {
             System.out.println("Sending Crypto Keys to client...");
-            System.out.println("Crypto Keys: " + cryptoMap.keySet());
+
             return new HashSet<>(cryptoMap.keySet());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -138,7 +133,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             Object obj = in.readObject();
             cryptoMap = (HashMap<String, ArrayList<CryptoObject>>) obj;
             System.out.println("HashMap loaded from file.");
-            System.out.println("Loaded Crypto Map: " + cryptoMap);
+
         } catch (FileNotFoundException e) {
             System.out.println("File not found, initializing empty map.");
         } catch (IOException | ClassNotFoundException e) {
@@ -149,7 +144,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
             Object obj = in.readObject();
             SubscriptionList = (HashMap<String, Set<String>>) obj;
             System.out.println("Subscription List loaded from file.");
-            System.out.println("Loaded Subscription List: " + SubscriptionList);
+
         } catch (FileNotFoundException e) {
             System.out.println("File not found, initializing empty SubscriptionList.");
         } catch (IOException | ClassNotFoundException e) {
@@ -162,7 +157,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("PublishedArticles.txt"))) {
             out.writeObject(cryptoMap); // Write the entire HashMap to the file
             System.out.println("HashMap saved to file.");
-            System.out.println("Loaded Crypto Map: " + cryptoMap);
+
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error saving HashMap to file.");
@@ -172,7 +167,7 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
     @Override
     public void receiveCryptoObject(CryptoObject cryptoObject) throws RemoteException {
         System.out.println("Received Crypto Object:");
-        System.out.println(cryptoObject);
+
         String cryptoName = cryptoObject.getCryptoName();
         if (cryptoMap.containsKey(cryptoName)) {
             // If the key exists, add the new CryptoObject to the existing list
@@ -189,14 +184,11 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
 
     public static void sendHelloToAllClients(String CryptoName) {
 
-        System.out.println(clientOutputStreams);
-        // private HashMap<String, Set<String>> SubscriptionList = new HashMap<>();
-        System.out.println(SubscriptionList);
         for (Map.Entry<PrintWriter, String> entry : clientOutputStreams.entrySet()) {
             String clientValue = entry.getValue(); // This is the "IP:port" string
             PrintWriter out = entry.getKey(); // The PrintWriter for this client
             // System.out.println();
-            System.out.println(clientValue + " /" + out + " /" + "RETRIEVED FROM MAP BEFORE HELLO");
+
             if (SubscriptionList.containsKey(clientValue)) {
                 if (SubscriptionList.get(clientValue).contains(CryptoName)) {
                     out.println("HELLO");
@@ -229,12 +221,9 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
 
                     System.out.println("Waiting for username...");
                     String message = in.readLine();
-                    System.out.println("Message: " + message);
+
                     String[] parts = message.split(":");
-                    System.out.println(parts.length);
-                    for (String part : parts) {
-                        System.out.println(part);
-                    }
+
                     clientOutputStreams.put(out, message);
                     System.out.println("Received from client: " + message);
                 }
@@ -255,13 +244,16 @@ public class DealingRoomServer extends UnicastRemoteObject implements Publisher,
 
     public static void main(String[] args) {
         try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            System.setProperty("java.rmi.server.hostname", inetAddress.getHostAddress());
-            System.out.println("Server IP: " + inetAddress.getHostAddress());
+            InetAddress inetAddresss = InetAddress.getLocalHost();
+            System.setProperty("java.rmi.server.hostname", inetAddresss.getHostAddress());
+            System.out.println("Server IP: " + inetAddresss.getHostAddress());
             // Create and export the DealingRoomServer object
             DealingRoomServer server = new DealingRoomServer();
             // Create the RMI registry on port 1099
             java.rmi.registry.LocateRegistry.createRegistry(1099);
+            System.out.println(inetAddresss);
+            String inetAddress = InetAddress.getLocalHost().toString().replace("Umar/", "");
+            // inetAddress = inetAddress.replace("Umar/", "");
             LoginServiceImpl loginService = new LoginServiceImpl();
             Naming.rebind("rmi://" + inetAddress + ":1099/LoginService", loginService);
             // Bind the server object with the unique binding name

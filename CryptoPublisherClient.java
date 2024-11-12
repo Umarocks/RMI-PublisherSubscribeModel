@@ -17,7 +17,7 @@ import java.awt.event.*;
 import java.util.List;
 
 public class CryptoPublisherClient {
-    public static String serverAddressString = "rmi://Umar/10.91.80.240:1099";
+    public static String serverAddressString = "rmi://10.91.80.240:1099";
     public static String serverProcessAddressing = "10.91.80.240";
     public static String LoggedUsername = null;
 
@@ -102,6 +102,7 @@ public class CryptoPublisherClient {
             boolean isAuthenticated = authenticateUser(loginService, username, password, userType);
 
             if (isAuthenticated) {
+                System.out.println(userType + " logged in successfully!");
                 // IpRegister(); // Register the IP address of the user
                 String serverAddress = serverProcessAddressing; // The server's IP address
                 int serverPort = 10655; // The port on which the server is listening
@@ -146,20 +147,13 @@ public class CryptoPublisherClient {
                         System.err.println("Error listening to server messages: " + e.getMessage());
                     }
                     System.out.println("END OF THREAD");
-
                 }).start();
-                // } catch (IOException e) {
-                // System.err.println("Client exception: " + e.getMessage());
-                // }
-
                 JOptionPane.showMessageDialog(null, "Login successful!");
-                showDashboard();
+                showDashboard(userType);
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid credentials. Please try again.");
             }
-        } catch (
-
-        Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error connecting to server: " + e.getMessage());
         }
@@ -182,8 +176,17 @@ public class CryptoPublisherClient {
         return isAuthenticated;
     }
 
-    private static void showDashboard() {
+    private static void showDashboard(String userType) {
+
         JButton publishButton = new JButton("Go to Publish GUI");
+        if (userType == "Publisher") {
+            publishButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    publishGUI();
+                }
+            });
+        }
         JButton getCryptoTypesButton = new JButton("Get Crypto Topics");
         JButton getArticlesButton = new JButton("Get Articles");
 
@@ -191,9 +194,6 @@ public class CryptoPublisherClient {
         JButton subscribeButton = new JButton("Subscribe");
         JButton unsubscribeButton = new JButton("Unsubscribe");
         JButton backButton = new JButton("Back"); // Back button
-        // Initialize buttons' actions
-        // initializeButtonActions(subscribeButton, unsubscribeButton, topicInputField);
-
         // Back button action to go back to the dashboard
         backButton.addActionListener(new ActionListener() {
             @Override
@@ -203,9 +203,8 @@ public class CryptoPublisherClient {
                 // window or frame
                 JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(backButton);
                 currentFrame.setVisible(false); // Hide current window
-
                 // Call the dashboard (showDashboard will show the dashboard UI again)
-                showDashboard();
+                showDashboard(userType);
             }
         });
         subscribeButton.addActionListener(new ActionListener() {
@@ -234,13 +233,6 @@ public class CryptoPublisherClient {
             }
         });
 
-        publishButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                publishGUI();
-            }
-        });
-
         getCryptoTypesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -259,7 +251,10 @@ public class CryptoPublisherClient {
         JFrame frame = new JFrame("Publisher Dashboard");
         frame.setSize(400, 200); // Adjust frame size
         frame.setLayout(new FlowLayout());
-        frame.add(publishButton);
+        if (userType == "Publisher") {
+            frame.add(publishButton);
+        }
+        // frame.add(publishButton);
         frame.add(getCryptoTypesButton);
         frame.add(getArticlesButton);
         frame.add(topicInputField);
