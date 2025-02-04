@@ -127,7 +127,7 @@ java CryptoPublisherClient
 ---
 
 ## More Info
-**For more information on the project, refer to code documentation report **
+**For more information on the project, refer to code documentation report**
 
 ---
 
